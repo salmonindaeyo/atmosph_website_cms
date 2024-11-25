@@ -180,7 +180,7 @@ export default function Portfolio() {
           <div className="text-sm text-gray-500">
             <span
               className={`${
-                portfolio.filter((item) => item.isShow).length > 9
+                portfolio.filter((item) => item.isShow).length !== 9
                   ? "text-red-500"
                   : ""
               }`}
