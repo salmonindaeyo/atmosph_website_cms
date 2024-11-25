@@ -84,9 +84,17 @@ export default function Portfolio() {
     }
   };
 
+  useEffect(() => {
+    if (!createModalOpen) {
+      setSelectedPortfolio(null);
+    }
+  }, [createModalOpen]);
+
   const handleCreate = async (
     portfolioData: Omit<Portfolio, "_id" | "createdAt" | "updatedAt">
   ) => {
+    console.log("create 2");
+
     try {
       const token = Cookies.get("token_atmosph");
       if (!token) {
@@ -205,16 +213,11 @@ export default function Portfolio() {
       />
 
       <CreateModal
-        isEdit={false}
-        open={createModalOpen}
-        onClose={() => setCreateModalOpen(false)}
-        onCreate={handleCreate}
-      />
-      <CreateModal
-        isEdit={true}
+        isEdit={selectedPortfolio ? true : false}
         open={createModalOpen}
         onClose={() => setCreateModalOpen(false)}
         onEdit={handleEdit}
+        onCreate={handleCreate}
         selectedPortfolio={selectedPortfolio}
       />
     </div>

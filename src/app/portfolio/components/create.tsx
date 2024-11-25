@@ -52,8 +52,6 @@ export default function CreateModal({
   onCreate,
   selectedPortfolio,
 }: CreateModalProps) {
-  console.log("CreateModal render:", { isEdit, open, selectedPortfolio });
-
   const [formData, setFormData] = useState({
     name: "",
     service: "",
@@ -127,6 +125,7 @@ export default function CreateModal({
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
+    console.log("create 3");
     e.preventDefault();
     setLoading(true);
 
@@ -145,10 +144,12 @@ export default function CreateModal({
         ...formData,
         image: finalImageUrl,
       };
+      console.log("create 5555");
 
-      if (isEdit && onEdit) {
+      if (isEdit) {
         await onEdit(portfolioData);
-      } else if (!isEdit && onCreate) {
+      } else {
+        console.log("create 1");
         await onCreate(portfolioData);
       }
 

@@ -6,7 +6,7 @@ import { getStorage } from "firebase/storage";
 import "firebase/storage";
 
 const firebaseConfig = {
-  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+  apiKey: process.env.FIREBASE_API_KEY,
   authDomain: "meetme-1815f.firebaseapp.com",
   projectId: "meetme-1815f",
   storageBucket: "meetme-1815f.appspot.com",
@@ -16,7 +16,7 @@ const firebaseConfig = {
 };
 
 // Initialize Firebase only if API key exists
-if (!process.env.NEXT_PUBLIC_FIREBASE_API_KEY) {
+if (!process.env.FIREBASE_API_KEY) {
   console.error('Firebase API key is missing. Please check your environment variables.');
 }
 
