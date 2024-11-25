@@ -573,6 +573,12 @@ export default function Career() {
     fetchCareers();
   }, []);
 
+  useEffect(() => {
+    if (!modalOpen) {
+      setSelectedCareer(null);
+    }
+  }, [modalOpen]);
+
   const fetchCareers = async () => {
     try {
       const response = await fetch("/api/careers");
