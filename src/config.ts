@@ -5,6 +5,7 @@ import { getFirestore } from "@firebase/firestore";
 import { getStorage } from "firebase/storage";
 import "firebase/storage";
 
+console.log(process.env.FIREBASE_API_KEY);
 const firebaseConfig = {
   apiKey: process.env.FIREBASE_API_KEY,
   authDomain: "meetme-1815f.firebaseapp.com",
