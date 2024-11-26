@@ -88,6 +88,17 @@ export default function CreateModal({
       setImage(null);
       setImagePreview("");
       setImageUrl("");
+    } else {
+      if (!isEdit) {
+        setFormData({
+          name: "",
+          service: "",
+          isShow: true,
+        });
+        setImage(null);
+        setImagePreview("");
+        setImageUrl("");
+      }
     }
   }, [open]);
 

@@ -9,7 +9,11 @@ export async function GET(request: Request) {
     const client = await clientPromise;
     const db = client.db("atmosph_website");
     
-    const portfolios = await db.collection("portfolios").find({}).toArray();
+    // เพิ่มการเรียงลำดับตาม order จากน้อยไปมาก
+    const portfolios = await db.collection("portfolios")
+      .find({})
+      .sort({ order: 1 })
+      .toArray();
     
     return NextResponse.json(portfolios);
   } catch (error) {
@@ -54,11 +58,21 @@ export async function POST(request: Request) {
     const client = await clientPromise;
     const db = client.db("atmosph_website");
 
+    // ดึงค่า order สูงสุดจาก portfolios collection
+    const maxOrderDoc = await db.collection("portfolios")
+      .find({})
+      .sort({ order: -1 })
+      .limit(1)
+      .toArray();
+    
+    const nextOrder = maxOrderDoc.length > 0 ? maxOrderDoc[0].order + 1 : 1;
+
     const result = await db.collection("portfolios").insertOne({
       name,
       service,
       image,
       isShow,
+      order: nextOrder, // เพิ่ม field order
       createdAt: new Date(),
       updatedAt: new Date(),
     });
@@ -71,6 +85,93 @@ export async function POST(request: Request) {
     console.error(error);
     return NextResponse.json(
       { error: "เกิดข้อผิดพลาดในการเพิ่มข้อมูล" },
+      { status: 500 }
+    );
+  }
+}
+
+// PUT - อัพเดท order ของ portfolios
+export async function PUT(request: Request) {
+  try {
+    // ตรวจสอบ token
+    const token = request.headers.get("authorization")?.split(" ")[1];
+    if (!token) {
+      return NextResponse.json(
+        { error: "ไม่พบ token" },
+        { status: 401 }
+      );
+    }
+
+    const decoded = await verifyToken(token);
+    if (!decoded) {
+      return NextResponse.json(
+        { error: "token ไม่ถูกต้อง" },
+        { status: 401 }
+      );
+    }
+
+    const { portfolios } = await request.json();
+
+    if (!Array.isArray(portfolios)) {
+      return NextResponse.json(
+        { error: "ข้อมูลต้องเป็น array" },
+        { status: 400 }
+      );
+    }
+
+    const client = await clientPromise;
+    const db = client.db("atmosph_website");
+
+    // ดึงข้อมูล portfolios ทั้งหมดจาก DB
+    const allPortfolios = await db.collection("portfolios").find({}).toArray();
+    
+    // แยก portfolios ที่ไม่ได้อยู่ในการจัดเรียงครั้งนี้
+    const orderedIds = portfolios.map((p: any) => new ObjectId(p._id));
+    const remainingPortfolios = allPortfolios.filter(
+      p => !orderedIds.some(id => id.equals(p._id))
+    );
+
+    // อัพเดท order ตาม array ที่ส่งมา
+    let order = 1;
+    const updateOperations = portfolios.map((portfolio: any) => ({
+      updateOne: {
+        filter: { _id: new ObjectId(portfolio._id) },
+        update: { 
+          $set: { 
+            order: order++,
+            updatedAt: new Date()
+          }
+        }
+      }
+    }));
+
+    // อัพเดท order สำหรับ portfolios ที่เหลือ
+    const remainingUpdates = remainingPortfolios.map(portfolio => ({
+      updateOne: {
+        filter: { _id: portfolio._id },
+        update: { 
+          $set: { 
+            order: order++,
+            updatedAt: new Date()
+          }
+        }
+      }
+    }));
+
+    // รวม operations ทั้งหมดและทำการอัพเดท
+    await db.collection("portfolios").bulkWrite([
+      ...updateOperations,
+      ...remainingUpdates
+    ]);
+
+    return NextResponse.json({
+      message: "อัพเดทลำดับสำเร็จ"
+    });
+
+  } catch (error) {
+    console.error(error);
+    return NextResponse.json(
+      { error: "เกิดข้อผิดพลาดในการอัพเดทลำดับ" },
       { status: 500 }
     );
   }

@@ -5,6 +5,7 @@ import Table from "./components/table";
 import Cookies from "js-cookie";
 import DeleteModal from "./components/delete";
 import CreateModal from "./components/create";
+import Link from "next/link";
 export default function Portfolio() {
   const [portfolio, setPortfolio] = useState<Portfolio[]>([]);
   const [loading, setLoading] = useState(true);
@@ -90,11 +91,19 @@ export default function Portfolio() {
     }
   }, [createModalOpen]);
 
+  useEffect(() => {
+    if (!deleteModalOpen) {
+      setSelectedPortfolio(null);
+    }
+  }, [deleteModalOpen]);
+
+  useEffect(() => {
+    console.log("selectedPortfolio", selectedPortfolio);
+  }, [selectedPortfolio]);
+
   const handleCreate = async (
     portfolioData: Omit<Portfolio, "_id" | "createdAt" | "updatedAt">
   ) => {
-    console.log("create 2");
-
     try {
       const token = Cookies.get("token_atmosph");
       if (!token) {
@@ -191,11 +200,19 @@ export default function Portfolio() {
           </div>
         </div>
 
-        <div
-          className="bg-primary hover:bg-blue-400 cursor-pointer transition-colors duration-300 text-white font-bold py-2 px-4 rounded"
-          onClick={() => setCreateModalOpen(true)}
-        >
-          add portfolio
+        <div className="flex gap-2">
+          <Link
+            href="/portfolio/sort"
+            className="bg-white border text-blue-400 border-blue-400 hover:bg-blue-100 cursor-pointer transition-colors duration-300 font-bold py-2 px-4 rounded"
+          >
+            Reorder Portfolio
+          </Link>
+          <div
+            className="bg-primary hover:bg-blue-400 cursor-pointer transition-colors duration-300 text-white font-bold py-2 px-4 rounded"
+            onClick={() => setCreateModalOpen(true)}
+          >
+            Add Portfolio
+          </div>
         </div>
       </div>
       <Table

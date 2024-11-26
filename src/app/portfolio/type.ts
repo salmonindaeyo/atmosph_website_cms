@@ -5,6 +5,6 @@ export interface Portfolio {
   isShow: boolean;
   image: string;
   createdAt: string;
-    updatedAt: string;
-  }
-  
+  updatedAt: string;
+  order?: number;
+}
