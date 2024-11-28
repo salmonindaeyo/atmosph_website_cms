@@ -21,9 +21,9 @@ export default function Sort() {
         throw new Error("เกิดข้อผิดพลาดในการดึงข้อมูล");
       }
       const data = await response.json();
-      const sortedData = data.sort(
-        (a: Portfolio, b: Portfolio) => a.order - b.order
-      );
+      const sortedData = data
+        .filter((port: Portfolio) => port.isShow === true)
+        .sort((a: Portfolio, b: Portfolio) => a.order - b.order);
       setPortfolio(sortedData);
     } catch (err) {
       setError(
@@ -45,11 +45,15 @@ export default function Sort() {
         newPortfolio[index - 1],
         newPortfolio[index],
       ];
+      newPortfolio[index].order = index + 1;
+      newPortfolio[index - 1].order = index;
     } else if (direction === "down" && index < portfolio.length - 1) {
       [newPortfolio[index], newPortfolio[index + 1]] = [
         newPortfolio[index + 1],
         newPortfolio[index],
       ];
+      newPortfolio[index].order = index + 1;
+      newPortfolio[index + 1].order = index + 2;
     }
     setPortfolio(newPortfolio);
   };
@@ -71,8 +75,9 @@ export default function Sort() {
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
-          portfolios: visiblePortfolios.map((p) => ({
+          portfolios: visiblePortfolios.map((p, index) => ({
             _id: p._id,
+            order: index + 1,
           })),
         }),
       });
