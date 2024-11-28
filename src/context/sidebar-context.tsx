@@ -31,6 +31,11 @@ const SIDEBAR_ROUTES: SidebarRoute[] = [
     text: "Portfolio",
     href: "/portfolio",
   },
+  {
+    icon: SquareLibrary,
+    text: "Footer",
+    href: "/footer",
+  },
 ];
 
 type SidebarContextType = {
